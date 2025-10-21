@@ -13,7 +13,8 @@ DATA_PATHS = {
     'processed_test': 'data/processed/feature_engineered_test.csv',
     'precipitation': 'data/external/precipitation.csv',
     'gmaps_train': 'data/processed/gmapsdata/gmaps_train_data.csv',
-    'gmaps_test': 'data/processed/gmapsdata/gmaps_test_data.csv'
+    'gmaps_test': 'data/processed/gmapsdata/gmaps_test_data.csv',
+    'historical_weather': 'data/processed/historical_weather.csv'
 }
 
 # Output paths
