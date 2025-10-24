@@ -29,7 +29,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export async function predictTravelTime(request: PredictionRequest): Promise<PredictionResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/predict`, {
+  const response = await fetch(`${API_BASE_URL}/predict`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ export async function predictTravelTime(request: PredictionRequest): Promise<Pre
 
 export async function getModelStatus(): Promise<{ status: string; version?: string }> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/status`);
+  const response = await fetch(`${API_BASE_URL}/status`);
     
     if (!response.ok) {
       throw new Error(`Status check failed: ${response.status}`);

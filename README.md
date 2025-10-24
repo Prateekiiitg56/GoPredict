@@ -2,16 +2,28 @@
 
 A comprehensive machine learning pipeline for predicting trip durations using various regression models, feature engineering, and hyperparameter optimization.
 
-Medium post - https://medium.com/@hphadtare02/how-machine-learning-predicts-trip-duration-just-like-uber-zomato-91f7db6e9ce9
+**Medium post**: https://medium.com/@hphadtare02/how-machine-learning-predicts-trip-duration-just-like-uber-zomato-91f7db6e9ce9
 
 ## 📁 Project Structure
 
 ```
 GoPredict/
 ├── main.py                          # Main runner script
+├── start_api.py                     # API server startup script
+├── test_api.py                      # API testing script
 ├── config.py                        # Project configuration
 ├── requirements.txt                  # Python dependencies
 ├── README.md                        # This file
+├── CONTRIBUTING.md                  # Development and integration guide
+├── CODE_OF_CONDUCT.md               # Code of conduct and security
+│
+├── api/                            # FastAPI backend
+│   └── main.py                     # FastAPI application
+│
+├── frontend/                       # React frontend
+│   └── src/
+│       └── lib/
+│           └── api.ts              # API client library
 │
 ├── data/                            # Data directory
 │   ├── raw/                         # Raw data files
@@ -34,10 +46,11 @@ GoPredict/
 │   │   ├── geolocation.py         # Geographic features
 │   │   ├── gmaps.py               # Google Maps integration
 │   │   ├── precipitation.py       # Weather features
-│   │   └── time.py                # Time-based features
+│   │   ├── time.py                # Time-based features
+│   │   └── weather_api.py         # Weather API integration
 │   ├── feature_pipe.py            # Feature engineering pipeline
 │   ├── data_preprocessing.py      # Data preprocessing
-│   └── complete_pipeline_example.py # Usage examples
+│   └── complete_pipeline.py       # Complete ML pipeline
 │
 ├── notebooks/                      # Jupyter notebooks
 │   ├── 01_EDA.ipynb               # Exploratory Data Analysis
@@ -67,49 +80,201 @@ pip install -r requirements.txt
 mkdir -p logs output saved_models
 ```
 
-### 2. Data Preparation
+### 2. API Server
 
-Ensure you have the following data files in place:
-
-- `data/raw/train.csv` - Training data
-- `data/raw/test.csv` - Test data
-- `data/external/precipitation.csv` - Weather data
-
-### 3. Run the Pipeline
+Start the FastAPI server to connect your frontend with ML models:
 
 ```bash
-# Run COMPLETE end-to-end pipeline (RECOMMENDED)
-python main.py --mode complete
+# Start the API server
+python start_api.py
 
-# Run complete pipeline with all models (assumes feature engineering is done)
-python main.py --mode full
+# Test the API
+python test_api.py
 
-# Train specific models only (assumes feature engineering is done)
-python main.py --mode train --models LINREG,RIDGE,XGB
-
-# Make predictions only (assumes feature engineering is done)
-python main.py --mode predict --models XGB
-
-# Hyperparameter tuning only (assumes feature engineering is done)
-python main.py --mode tune
-
-# Enable XGBoost hyperparameter tuning
-python main.py --mode complete --tune-xgb
+# View API documentation
+# Visit http://localhost:8000/docs
 ```
 
-## 📊 Available Models
+### 3. Frontend Development
 
-| Model                     | Code     | Description                        |
-| ------------------------- | -------- | ---------------------------------- |
-| Linear Regression         | `LINREG` | Baseline linear model              |
-| Ridge Regression          | `RIDGE`  | Linear with L2 regularization      |
-| Lasso Regression          | `LASSO`  | Linear with L1 regularization      |
-| Support Vector Regression | `SVR`    | Support vector machine             |
-| XGBoost                   | `XGB`    | Gradient boosting (best performer) |
-| Random Forest             | `RF`     | Ensemble of decision trees         |
-| Neural Network            | `NN`     | Deep learning model                |
+```bash
+# Install frontend dependencies
+cd frontend
+npm install
 
-## 🎯 Usage
+# Start development server
+npm run dev
+```
+
+## 🔌 API Documentation
+
+The GoPredict API provides REST endpoints for machine learning-based trip duration prediction using FastAPI.
+
+### Quick API Start
+
+```bash
+# Start the API server
+python start_api.py
+
+# Or with custom options
+python start_api.py --host 0.0.0.0 --port 8000 --reload
+```
+
+### API Access Points
+
+- **Interactive Documentation**: http://localhost:8000/docs
+- **Alternative Documentation**: http://localhost:8000/redoc
+- **Health Check**: http://localhost:8000/health
+
+### Core API Endpoints
+
+#### Weather API
+
+**`GET /weather`** - Get weather data for a specific location and time
+
+**Parameters:**
+
+- `latitude` (float): Latitude coordinate
+- `longitude` (float): Longitude coordinate
+- `timestamp` (str): ISO format timestamp (e.g., "2016-01-01T17:00:00")
+
+**Example:**
+
+```bash
+curl "http://localhost:8000/weather?latitude=40.767937&longitude=-73.982155&timestamp=2016-01-01T17:00:00"
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "temp": 5.0,
+    "humidity": 53.0,
+    "pressure": 1013.25
+  },
+  "location": { "latitude": 40.767937, "longitude": -73.982155 },
+  "timestamp": "2016-01-01T17:00:00"
+}
+```
+
+#### Distance Calculation API
+
+**`POST /distance`** - Calculate Manhattan and/or Euclidean distances
+
+**Parameters:**
+
+- `start_lat` (float): Starting latitude
+- `start_lng` (float): Starting longitude
+- `end_lat` (float): Ending latitude
+- `end_lng` (float): Ending longitude
+- `method` (str): "manhattan", "euclidean", or "both" (default: "both")
+
+**Example:**
+
+```bash
+curl -X POST "http://localhost:8000/distance" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "start_lat": 40.767937,
+    "start_lng": -73.982155,
+    "end_lat": 40.748817,
+    "end_lng": -73.985428,
+    "method": "both"
+  }'
+```
+
+#### Time Features API
+
+**`POST /time-features`** - Extract time-based features from datetime
+
+**Parameters:**
+
+- `datetime_str` (str): ISO format datetime string
+
+**Example:**
+
+```bash
+curl -X POST "http://localhost:8000/time-features" \
+  -H "Content-Type: application/json" \
+  -d '{"datetime_str": "2016-01-01T17:00:00"}'
+```
+
+#### Prediction API
+
+**`POST /predict`** - Predict trip duration using ML models
+
+**Parameters (JSON Body):**
+
+```json
+{
+  "from": {
+    "lat": 40.767937,
+    "lon": -73.982155
+  },
+  "to": {
+    "lat": 40.748817,
+    "lon": -73.985428
+  },
+  "startTime": "2016-01-01T17:00:00",
+  "city": "new_york",
+  "model_name": "XGBoost"
+}
+```
+
+**Response:**
+
+```json
+{
+  "minutes": 5.2,
+  "confidence": 0.75,
+  "model_version": "XGBoost",
+  "distance_km": 2.1,
+  "city": "new_york"
+}
+```
+
+#### Model Management API
+
+**`GET /models`** - List available trained models
+**`GET /models/{model_name}`** - Get specific model information
+**`POST /models/train`** - Train models in background
+
+**Example:**
+
+```bash
+# List models
+curl "http://localhost:8000/models"
+
+# Train models
+curl -X POST "http://localhost:8000/models/train" \
+  -H "Content-Type: application/json" \
+  -d '{"models_to_run": ["XGBoost", "Random Forest"]}'
+```
+
+#### Health & Status API
+
+**`GET /health`** - Health check endpoint
+**`GET /status`** - Detailed API status
+
+### Frontend Integration
+
+The frontend uses the API client in `frontend/src/lib/api.ts`:
+
+```typescript
+import { predictTravelTime } from "@/lib/api";
+
+// Example usage
+const prediction = await predictTravelTime({
+  from: { lat: 40.767937, lon: -73.982155 },
+  to: { lat: 40.748817, lon: -73.985428 },
+  startTime: "2016-01-01T17:00:00",
+  city: "new_york",
+});
+```
+
+## 🎯 ML Pipeline Usage
 
 ### Simple Pipeline (Default)
 
@@ -208,112 +373,45 @@ models = run_regression_models(train_df, ['XGB', 'RF'])
 predictions = predict_duration(models['XGBoost'], test_df)
 
 # Create submission
-submission_file = to_submission(predictions)
+submission = to_submission(predictions, test_df)
+submission.to_csv('my_submission.csv', index=False)
 ```
 
-### Hyperparameter Tuning
+## 🧪 Testing
 
-```python
-from src.model.models import hyperparameter_tuning_xgb
+### API Testing
 
-# Tune XGBoost
-best_model, best_params, best_rmse = hyperparameter_tuning_xgb(train_df)
-print(f"Best RMSE: {best_rmse}")
-print(f"Best parameters: {best_params}")
+```bash
+# Run comprehensive API tests
+python test_api.py
 ```
 
-## 🎨 Features
+### Frontend Testing
 
-### Data Processing
+```bash
+cd frontend
+npm run test
+npm run test:coverage
+```
 
-- **Feature Engineering**: Distance calculations, time features, weather data
-- **Normalization**: Custom normalization for different feature types
-- **Data Validation**: Automatic data quality checks
+## 📊 Available Models
 
-### Model Training
+- **LINREG** - Linear Regression
+- **RIDGE** - Ridge Regression
+- **LASSO** - Lasso Regression
+- **SVR** - Support Vector Regression
+- **XGB** - XGBoost
+- **RF** - Random Forest
+- **NN** - Neural Network
 
-- **Multiple Algorithms**: 7 different regression models
-- **Hyperparameter Tuning**: Automated XGBoost optimization
-- **Cross-Validation**: Built-in validation splits
-- **Progress Tracking**: Detailed logging with sandwich format
+## 🤝 Contributing
 
-### Evaluation
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and frontend integration details.
 
-- **Comprehensive Metrics**: RMSE, MAE, R², MAPE
-- **Visual Comparisons**: Histogram comparisons, feature importance
-- **Model Persistence**: Save and load trained models
+## 📋 Code of Conduct
 
-### Output
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for our community guidelines and security policies.
 
-- **Submission Files**: Ready-to-submit CSV files
-- **Visualizations**: Plots and charts for analysis
-- **Logging**: Complete audit trail
+## 📄 License
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Missing Data Files**
-
-   ```
-   FileNotFoundError: Data file not found
-   ```
-
-   Solution: Ensure all required data files are in the correct directories
-
-2. **Import Errors**
-
-   ```
-   ModuleNotFoundError: No module named 'xgboost'
-   ```
-
-   Solution: Install missing dependencies: `pip install -r requirements.txt`
-
-3. **Memory Issues**
-   ```
-   MemoryError: Unable to allocate array
-   ```
-   Solution: Reduce batch size or use fewer models
-
-### Getting Help
-
-- Check logs in `logs/main.log` for detailed error messages
-- Verify data files are in correct format and location
-- Ensure all dependencies are installed correctly
-
-## 📊 Performance
-
-Typical model performance on validation set:
-
-- **XGBoost**: ~400-450 RMSE (best performer)
-- **Random Forest**: ~420-470 RMSE
-- **Linear Models**: ~450-500 RMSE
-- **Neural Network**: ~430-480 RMSE
-
-## 🔮 Future Enhancements
-
-- [ ] Automated feature selection
-- [ ] Real-time prediction API
-- [ ] Model monitoring dashboard
-- [ ] A/B testing framework
-
-  ## 📄 License
-
-  This project is licensed under the MIT License - see the LICENSE file for details.
-
-  ## 🤝 Contributing
-
-  Please read [CONTRIBUTING.md](CONTRIBUTING.md). By participating, you agree to abide by our [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) and report vulnerabilities per [SECURITY.md](SECURITY.md).
-
-  1. Fork the repository
-  2. Create a feature branch
-  3. Make your changes
-  4. Add tests if applicable
-  5. Submit a pull request
-
-  ## 📞 Support
-
-For questions or issues, please:
-
-1. Check the logs first
-2. Review this documentation
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
