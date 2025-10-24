@@ -29,6 +29,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
+          cache-dependency-path: |
+            frontend/pnpm-lock.yaml
 
       # --- Lockfile Sync Check (added section) ---
       - name: Check lockfile sync
@@ -143,6 +145,8 @@ jobs:
         with:
           node-version: "20.x"
           cache: "pnpm"
+          cache-dependency-path: |
+            frontend/pnpm-lock.yaml
 
       # --- Install Python dependencies ---
       - run: |
