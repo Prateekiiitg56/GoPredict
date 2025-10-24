@@ -576,6 +576,16 @@ async def health_check():
         "pipeline_initialized": pipeline_instance is not None
     }
 
+
+@app.get("/")
+async def root_redirect():
+    """Root endpoint - simple status to avoid 404 on HEAD/GET /"""
+    return {
+        "status": "ok",
+        "message": "GoPredict API - see /health for details",
+        "health": f"{os.environ.get('ROOT_URL', '')}/health" if os.environ.get('ROOT_URL') else "/health"
+    }
+
 @app.get("/status")
 async def get_status():
     """Get detailed status of the API"""
