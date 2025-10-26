@@ -8,6 +8,11 @@ import { predictTravelTime } from "@/lib/api";
 import { Clock, MapPin, Car } from "lucide-react";
 import Footer from "@/components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
+// --- 1. Import Link, auth tools, and auth hook ---
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/AuthContext"; // Use the Auth hook
+import { auth } from "@/firebase"; // Import auth service
+import { signOut } from "firebase/auth"; // Import signOut function
 
 type Location = {
   id: string;
@@ -17,6 +22,11 @@ type Location = {
 };
 
 export default function Home() {
+  // --- 2. Get auth state and navigation ---
+  const { user } = useAuth(); // Get the current user
+  const navigate = useNavigate();
+
+  // --- (All your existing state from line 22 to 36) ---
   const [fromId, setFromId] = useState("");
   const [toId, setToId] = useState("");
   const [fromLocation, setFromLocation] = useState<Location | null>(null);
@@ -30,6 +40,18 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [warning, setWarning] = useState("");
 
+  // --- 3. Add the sign-out handler ---
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      // Reload the page to clear state and ensure user is logged out
+      navigate(0); 
+    } catch (error) {
+      console.error("Failed to sign out:", error);
+    }
+  };
+
+  // --- (All your existing functions from line 39 to 157) ---
   // Update city when location changes
   const handleFromLocationSelect = (location: Location | null) => {
     setFromLocation(location);
@@ -140,7 +162,7 @@ export default function Home() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-background">
-      {/* Background Pattern */}
+      {/* --- (Background Pattern divs) --- */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.6 }}
@@ -183,16 +205,33 @@ export default function Home() {
             GoPredict
           </span>
         </motion.div>
+        
+        {/* --- 4. Update this section for conditional auth button --- */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex items-center gap-2" // Kept flex and gap
         >
+          {/* --- Conditionally show Sign In or Sign Out --- */}
+          {user ? (
+            <Button variant="outline" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          ) : (
+            <Link to="/sign-in">
+              <Button variant="outline">Sign In</Button>
+            </Link>
+          )}
+          {/* --- End of change --- */}
+          
           <ThemeToggle />
         </motion.div>
+        {/* --- End of modification --- */}
+        
       </motion.header>
 
-      {/* Main Content */}
+      {/* --- (Rest of your Main Content and Footer) --- */}
       <main className="container mx-auto flex-1 px-4 pb-4 pt-2">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -419,7 +458,7 @@ export default function Home() {
                 disabled={!canPredict || isLoading}
                 className="h-12 w-full rounded-lg bg-primary text-primary-foreground shadow-soft transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Predict Travel Time
+                {isLoading ? "Predicting..." : "Predict Travel Time"}
               </Button>
             </motion.div>
 
@@ -457,3 +496,5 @@ export default function Home() {
     </div>
   );
 }
+
+

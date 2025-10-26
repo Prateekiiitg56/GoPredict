@@ -1,10 +1,16 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+// --- 1. Import using path alias ---
+import App from '@/App.tsx'
+import '@/index.css'
+import { AuthProvider } from '@/AuthContext'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    {/* --- 2. Wrap your App component --- */}
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </React.StrictMode>,
 )
+
