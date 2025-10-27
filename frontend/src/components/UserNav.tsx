@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button'; // Standard button
 import { auth } from '../firebase'; // Go UP one level from components to src
 import { signOut } from 'firebase/auth';
