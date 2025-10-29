@@ -12,7 +12,7 @@ import { useAuth } from '../AuthContext';
 // --- End Corrected Paths ---
 import { signOut, updateProfile } from 'firebase/auth';
 import { motion } from 'framer-motion';
-import { Car, Loader2, Edit, X, ArrowUp, ArrowDown, Filter, Trash2, AlertTriangle, ArrowUpDown } from 'lucide-react';
+import { Car, Loader2, Edit, X, ArrowUp, ArrowDown,Trash2, AlertTriangle, ArrowUpDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { format, isValid } from 'date-fns'; // Make sure date-fns is installed: pnpm add date-fns
 

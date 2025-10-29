@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './db';
+import '../config/firebaseAdmin'; // <-- CORRECTED PATH HERE
 // --- Import Routes ---
 import profileRoutes from './routes/profile';
 import tripRoutes from './routes/trips';
@@ -9,7 +10,7 @@ import userRoutes from './routes/users';
 // -------------------
 
 dotenv.config();
-connectDB();
+connectDB(); // Connect to DB
 
 const app: Express = express();
 const port = process.env.PORT || 5001;
@@ -30,6 +31,6 @@ app.use('/api/users', userRoutes);
 // ------------------
 
 app.listen(port, () => {
-  console.log(`🚀 Backend server listening on http://localhost:${port}`);
+  console.log(` Backend server listening on http://localhost:${port}`);
 });
 
